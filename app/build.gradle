@@ -1,17 +1,17 @@
 apply plugin: 'com.android.application'
 
-def currentYear = 2026
+def current_year = 2026
+def app_name = "okapi"
 
 android {
-    namespace 'com.rama.okapi_zero'
+
     compileSdk 37
 
     defaultConfig {
-        applicationId 'com.rama.okapi_zero'
+        namespace "com.rama.${app_name}_zero"
         targetSdk 37
-
         versionCode 1
-        versionName "${currentYear}.${versionCode}"
+        versionName "${current_year}.${versionCode}"
 
         resConfigs "en"
     }
@@ -20,15 +20,15 @@ android {
 
     productFlavors {
         forever {
+            applicationId "com.rama.${app_name}_forever"
             dimension "androidVersion"
             minSdk 5
-            versionNameSuffix "-forever"
         }
 
         zero {
+            applicationId "com.rama.${app_name}_zero"
             dimension "androidVersion"
             minSdk 21
-            versionNameSuffix "-zero"
         }
     }
 
@@ -77,7 +77,7 @@ androidComponents {
 
             output.outputFileName.set(
                     output.versionName.map { name ->
-                        "okapi_${flavor}_${name}.apk"
+                        "${app_name}_${flavor}_${name}.apk"
                     }
             )
         }
