@@ -8,7 +8,6 @@ android {
 
     defaultConfig {
         applicationId 'com.rama.okapi_zero'
-        minSdk 5
         targetSdk 37
 
         versionCode 1
@@ -17,21 +16,27 @@ android {
         resConfigs "en"
     }
 
+    flavorDimensions "androidVersion"
+
+    productFlavors {
+        forever {
+            dimension "androidVersion"
+            minSdk 5
+            versionNameSuffix "-forever"
+        }
+
+        zero {
+            dimension "androidVersion"
+            minSdk 21
+            versionNameSuffix "-zero"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
             vcsInfo.include = false
-
-            signingConfig signingConfigs.getByName('debug')
-        }
-
-        beta {
-            applicationIdSuffix '.beta'
-            versionNameSuffix '-beta'
-            minifyEnabled true
-            shrinkResources true
-
             signingConfig signingConfigs.getByName('debug')
         }
 
@@ -55,7 +60,7 @@ android {
     packaging {
         resources {
             excludes += 'META-INF/*.version'
-            excludes += 'META-INF/com/android/build/gradle/app-metadata.properties'
+            excludes += 'META-INF/com/android/gradle/app-metadata.properties'
             excludes += 'kotlin/**'
         }
 
@@ -68,8 +73,13 @@ android {
 androidComponents {
     onVariants(selector().all()) { variant ->
         variant.outputs.each { output ->
-            output.outputFileName.set(output.versionName.map { name -> "okapi_zero_${name}.apk"
-            })
+            def flavor = variant.flavorName
+
+            output.outputFileName.set(
+                    output.versionName.map { name ->
+                        "okapi_${flavor}_${name}.apk"
+                    }
+            )
         }
     }
 }
