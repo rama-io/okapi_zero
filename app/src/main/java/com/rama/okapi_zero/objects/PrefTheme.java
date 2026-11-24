@@ -4,16 +4,10 @@ public final class PrefTheme {
     private PrefTheme() {
     }
 
-    public static final String CATPPUCCIN_MOCHA_BLUE = "catppuccin_mocha_blue";
-    public static final String CATPPUCCIN_MOCHA_MAUVE = "catppuccin_mocha_mauve";
-    public static final String CATPPUCCIN_MOCHA_YELLOW = "catppuccin_mocha_yellow";
-    public static final String CATPPUCCIN_MOCHA_PEACH = "catppuccin_mocha_peach";
-    public static final String CATPPUCCIN_MOCHA_RED = "catppuccin_mocha_red";
-    public static final String CATPPUCCIN_MOCHA_GREEN = "catppuccin_mocha_green";
-    public static final String CATPPUCCIN_LATTE = "catppuccin_latte";
-    public static final String MONO_DARK = "mono_dark";
-    public static final String MONO_LIGHT = "mono_light";
+    public static final String ACCENT_RANDOM = Themes.RANDOM;
 
-    public static final String DEFAULT_DARK = CATPPUCCIN_MOCHA_PEACH;
-    public static final String DEFAULT_LIGHT = CATPPUCCIN_LATTE;
+    public static final String DEFAULT_DARK_FLAVOR = Themes.DEFAULT_DARK_FLAVOR;
+    public static final String DEFAULT_LIGHT_FLAVOR = Themes.DEFAULT_LIGHT_FLAVOR;
+    /** One accent is shared by the dark and light flavors. */
+    public static final String DEFAULT_ACCENT = "peach";
 }

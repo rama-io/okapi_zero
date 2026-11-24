@@ -17,22 +17,59 @@ import android.widget.TextView;
 
 import com.rama.okapi_zero.R;
 import com.rama.okapi_zero.helpers.SystemBars;
+import com.rama.okapi_zero.objects.PrefTheme;
 import com.rama.okapi_zero.objects.Themes;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public final class ThemeManager {
+    private static final Random RANDOM = new Random();
+
+    private static Themes.Palette cachedFor;
+    private static Map<Integer, Integer> cachedMap;
+
     private ThemeManager() {
     }
 
-    public static Themes.Palette paletteFor(String themeId) {
-        return Themes.byId(themeId);
+    /** The palette configured for dark or light mode, whether or not that mode is currently shown. */
+    public static Themes.Palette paletteFor(Context context, boolean light) {
+        PrefsManager prefs = PrefsManager.getInstance(context);
+        String accent = prefs.getAccent();
+        if (PrefTheme.ACCENT_RANDOM.equals(accent)) {
+            accent = prefs.getRolledAccent();
+        }
+        return Themes.palette(prefs.getFlavor(light), accent);
     }
 
     public static Themes.Palette currentPalette(Context context) {
-        return paletteFor(PrefsManager.getInstance(context).getActiveTheme());
+        return paletteFor(context, PrefsManager.getInstance(context).isLightMode());
+    }
+
+    /** True when at least one of the chosen flavors takes an accent (the mono ones don't). */
+    public static boolean usesAccent(Context context) {
+        PrefsManager prefs = PrefsManager.getInstance(context);
+        return Themes.hasAccents(prefs.getFlavor(false)) || Themes.hasAccents(prefs.getFlavor(true));
+    }
+
+    /** Picks a new random accent when the setting is Random. Call once per app start. */
+    public static void rollIfRandom(Context context) {
+        if (usesAccent(context) && PrefTheme.ACCENT_RANDOM.equals(PrefsManager.getInstance(context).getAccent())) {
+            roll(context);
+        }
+    }
+
+    public static void roll(Context context) {
+        PrefsManager prefs = PrefsManager.getInstance(context);
+        List<String> pool = Themes.accentIds();
+        String previous = prefs.getRolledAccent();
+        String next;
+        do {
+            next = pool.get(RANDOM.nextInt(pool.size()));
+        } while (next.equals(previous) && pool.size() > 1);
+        prefs.setRolledAccent(next);
     }
 
     public static void applyTheme(Context context, View root) {
@@ -40,7 +77,7 @@ public final class ThemeManager {
         if (context instanceof Activity activity) {
             SystemBars.apply(activity, palette);
         }
-        applyRecursively(root, palette, buildColorMap(context, palette));
+        applyRecursively(root, palette, colorMapFor(context, palette));
     }
 
     private static void applyRecursively(View view, Themes.Palette palette, Map<Integer, Integer> map) {
@@ -108,6 +145,14 @@ public final class ThemeManager {
         } catch (Exception e) {
             return Integer.MIN_VALUE;
         }
+    }
+
+    private static synchronized Map<Integer, Integer> colorMapFor(Context context, Themes.Palette target) {
+        if (cachedFor != target || cachedMap == null) {
+            cachedMap = buildColorMap(context, target);
+            cachedFor = target;
+        }
+        return cachedMap;
     }
 
     private static Map<Integer, Integer> buildColorMap(Context context, Themes.Palette target) {

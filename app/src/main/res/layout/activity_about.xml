@@ -44,13 +44,6 @@
             <com.rama.okapi_zero.widgets.WdLabel
                 style="@style/BlockFlow"
                 app:icon="@drawable/px_check"
-                app:text="@string/app_claims_size" />
-
-            <View style="@style/SeparatorListHorizontal" />
-
-            <com.rama.okapi_zero.widgets.WdLabel
-                style="@style/BlockFlow"
-                app:icon="@drawable/px_check"
                 app:text="@string/app_claims_min_api" />
 
             <View style="@style/SeparatorListHorizontal" />
@@ -59,13 +52,6 @@
                 style="@style/BlockFlow"
                 app:icon="@drawable/px_check"
                 app:text="@string/app_claims_ads_desc" />
-
-            <View style="@style/SeparatorListHorizontal" />
-
-            <com.rama.okapi_zero.widgets.WdLabel
-                style="@style/BlockFlow"
-                app:icon="@drawable/px_check"
-                app:text="@string/app_claims_background_tasks_desc" />
 
             <View style="@style/SeparatorListHorizontal" />
 

@@ -13,6 +13,7 @@ import com.rama.okapi_zero.managers.FontManager;
 import com.rama.okapi_zero.managers.PrefsManager;
 import com.rama.okapi_zero.managers.ThemeManager;
 import com.rama.okapi_zero.managers.ZoomManager;
+import com.rama.okapi_zero.objects.PrefTheme;
 import com.rama.okapi_zero.objects.Themes;
 import com.rama.okapi_zero.widgets.WdCheckbox;
 import com.rama.okapi_zero.widgets.WdRadioGroup;
@@ -44,26 +45,59 @@ public class Settings extends BaseActivity {
             findViewById(R.id.themes_container).setVisibility(View.GONE);
             return;
         }
-        setupThemeGroup((WdRadioGroup) findViewById(R.id.theme_dark_group), Themes.dark(), prefs.getDarkTheme(), false);
-        setupThemeGroup((WdRadioGroup) findViewById(R.id.theme_light_group), Themes.light(), prefs.getLightTheme(), true);
+        setupFlavors(false, R.id.theme_dark_group);
+        setupFlavors(true, R.id.theme_light_group);
+        setupAccents();
+        updateAccentVisibility();
     }
 
-    private void setupThemeGroup(WdRadioGroup group, final List<Themes.Palette> palettes, String current, final boolean light) {
+    /** Dark and light each have their own flavor list. */
+    private void setupFlavors(final boolean light, int groupId) {
+        final List<Themes.Flavor> flavors = Themes.flavors(light);
+        WdRadioGroup group = (WdRadioGroup) findViewById(groupId);
+        String current = prefs.getFlavor(light);
         int checkedId = -1;
-        for (int i = 0; i < palettes.size(); i++) {
-            int id = group.addOption(palettes.get(i).label).getId();
-            if (palettes.get(i).id.equals(current)) checkedId = id;
+        for (int i = 0; i < flavors.size(); i++) {
+            int id = group.addOption(flavors.get(i).label).getId();
+            if (flavors.get(i).id.equals(current)) checkedId = id;
         }
         group.check(checkedId);
         group.setOnCheckedChangeListener((g, id) -> {
-            String themeId = palettes.get(g.getCheckedIndex()).id;
-            if (light) {
-                prefs.setLightTheme(themeId);
+            prefs.setFlavor(light, flavors.get(g.getCheckedIndex()).id);
+            updateAccentVisibility();
+            ThemeManager.applyTheme(Settings.this, root);
+        });
+    }
+
+    /** One accent list shared by both modes. */
+    private void setupAccents() {
+        final List<Themes.Accent> accents = Themes.accents();
+        WdRadioGroup group = (WdRadioGroup) findViewById(R.id.accent_group);
+        String current = prefs.getAccent();
+        // Option 0 is Random, the accents follow in palette order.
+        int checkedId = group.addOption(getString(R.string.label_accent_random)).getId();
+        for (int i = 0; i < accents.size(); i++) {
+            int id = group.addOption(accents.get(i).label).getId();
+            if (accents.get(i).id.equals(current)) checkedId = id;
+        }
+        group.check(checkedId);
+        group.setOnCheckedChangeListener((g, id) -> {
+            int index = g.getCheckedIndex();
+            if (index <= 0) {
+                prefs.setAccent(PrefTheme.ACCENT_RANDOM);
+                ThemeManager.roll(Settings.this);
             } else {
-                prefs.setDarkTheme(themeId);
+                prefs.setAccent(accents.get(index - 1).id);
             }
             ThemeManager.applyTheme(Settings.this, root);
         });
+    }
+
+    /** Hidden only when both chosen flavors are fixed palettes (the mono ones), which have no accents. */
+    private void updateAccentVisibility() {
+        int visibility = ThemeManager.usesAccent(this) ? View.VISIBLE : View.GONE;
+        findViewById(R.id.accent_section).setVisibility(visibility);
+        findViewById(R.id.accent_separator).setVisibility(visibility);
     }
 
     private void setupSystemSection() {

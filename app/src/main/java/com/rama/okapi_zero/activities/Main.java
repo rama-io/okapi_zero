@@ -81,6 +81,7 @@ public class Main extends BaseActivity implements MessageAdapter.Listener {
         setContentView(R.layout.activity_main);
         prefs = PrefsManager.getInstance(this);
         db = new MessagesManager(this);
+        ThemeManager.rollIfRandom(this);
         root = findViewById(R.id.root);
         SystemBars.applyInsets(root);
 
